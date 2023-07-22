@@ -21,7 +21,7 @@ const cabin = Cabin({
 })
 
 export const metadata: Metadata = {
-    title: 'Twitter Clone',
+    title: 'Chirp',
     description: 'A Twitter clone built with Next.js and Prisma.',
 }
 
@@ -33,7 +33,7 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body
-                className={`${roboto.variable} ${pacifico.variable} font-roboto`}
+                className={`${roboto.variable} ${pacifico.variable} font-roboto scroll-smooth`}
             >
                 {children}
             </body>

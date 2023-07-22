@@ -11,7 +11,7 @@ export default function ChirpButton({
         <button
             type="button"
             onClick={onClick}
-            className={`px-6 py-1 text-xl font-bold text-gray-800 transition-colors duration-100 rounded-full bg-primary hover:bg-primary-hover active:bg-primary-active ${className}`}
+            className={`px-6 py-1 text-xl font-bold text-neutral-800 transition-colors duration-100 rounded-full bg-primary hover:bg-primary-hover active:bg-primary-active ${className}`}
         >
             Chirp
         </button>

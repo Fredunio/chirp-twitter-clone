@@ -11,7 +11,7 @@ export default function WelcomeChirp() {
             <div className="flex flex-col w-full px-4 ">
                 <div className="flex flex-col border-b-1 border-dimmed-color">
                     <input
-                        className="px-2 py-2 text-2xl placeholder-gray-500 bg-transparent"
+                        className="px-2 py-2 text-2xl placeholder-neutral-500 bg-transparent"
                         placeholder="What's chirping?"
                         type="text"
                     />

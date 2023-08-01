@@ -1,67 +1,163 @@
-import React from 'react'
+'use client'
+
+import React, { useCallback, useEffect } from 'react'
 import { BiDotsHorizontal } from 'react-icons/bi'
 import CommentButton from '../Buttons/CommentButton/CommentButton'
 import ReChirpButton from '../Buttons/ReChirpButton/ReChirpButton'
 import LikeButton from '../Buttons/LikeButton/LikeButton'
 import ViewsButton from '../Buttons/ViewsButton/ViewsButton'
 import ShareButton from '../Buttons/ShareButton/ShareButton'
+import { TPostPagination, TProfile } from '@/types/general-types'
+import { useSupabase } from '@/app/supabase-provider'
+import Image from 'next/image'
+import { fetchIsPostLikedByUser, fetchPostLikeCount } from '@/lib/fetch'
+import ReplyModal from '../Modals/ReplyModal/ReplyModal'
+import Link from 'next/link'
 
-export default function Post() {
+export default function Post({
+    post,
+    userProfile,
+}: {
+    post: TPostPagination
+    userProfile: TProfile | null
+}) {
+    const { supabase } = useSupabase()
+
+    const [likeCount, setLikeCount] = React.useState<number | null>(null)
+    const [isLikedByUser, setIsLikedByUser] = React.useState<boolean | null>(
+        null
+    )
+    const [showReplyModal, setShowReplyModal] = React.useState<boolean>(false)
+
+    useEffect(() => {
+        fetchPostLikeCount(supabase, post.id).then((count) => {
+            setLikeCount(count)
+        })
+
+        fetchIsPostLikedByUser(supabase, post.id).then((isLikedByUser) => {
+            setIsLikedByUser(isLikedByUser)
+        })
+    }, [supabase, post.profile_id, post.id])
+
+    const handleLike = useCallback(async () => {
+        const user = await supabase.auth.getSession()
+
+        if (!user.data.session?.user) {
+            console.log('handleLike no session')
+            return
+        }
+
+        if (isLikedByUser === null) {
+            console.log('handleLike isLikedByUser is null: ', isLikedByUser)
+            return
+        }
+
+        if (isLikedByUser === true) {
+            console.log('handleLike isLikedByUser is true: ', isLikedByUser)
+
+            console.log('chirp_id: ', post.id)
+            console.log('user_id: ', user.data.session.user.id)
+
+            const { error, count } = await supabase
+                .from('chirp_like')
+                .delete()
+                .eq('chirp_id', post.id)
+                .eq('user_id', user.data.session.user.id)
+
+            console.log('count: ', count)
+            if (error) {
+                console.log('unlike error: ', error)
+            }
+            if (!error) {
+                setIsLikedByUser(false)
+            }
+        } else if (isLikedByUser === false) {
+            console.log('handleLike isLikedByUser is false: ', isLikedByUser)
+
+            const { error } = await supabase.from('chirp_like').insert({
+                chirp_id: post.id,
+                user_id: user.data.session.user.id,
+            })
+
+            if (error) {
+                console.log('like error: ', error)
+            }
+            if (!error) {
+                setIsLikedByUser(true)
+            }
+        }
+
+        fetchPostLikeCount(supabase, post.id).then((count) => {
+            setLikeCount(count)
+        })
+    }, [supabase, isLikedByUser, post.id])
+
     return (
-        <article className="flex gap-4 px-4 py-4 border-b-1 border-dimmed-color">
-            <div>
-                <div className="w-10 h-10 rounded-full bg-secondary"></div>
-            </div>
-            <div className="w-full">
-                <h3 className="flex items-center w-full">
-                    <div className="flex items-center gap-1">
-                        <span className="font-semibold">ChiwiTeam</span>
-                        <span className="text-neutral-500 ">@chiwi_team</span>
-                        <span className="text-neutral-500 ">·</span>
-                        <span className="text-neutral-500 ">1h</span>
+        <>
+            <Link prefetch={false} href={`/post/${post.id}`} className="">
+                <div className="flex gap-4 px-4 py-4 border-b-1 border-dimmed-color">
+                    <div>
+                        <Image
+                            src={post.user.avatar}
+                            alt="avatar"
+                            width={50}
+                            height={50}
+                            className="rounded-full"
+                        />
                     </div>
-                    <button
-                        title="More"
-                        type="button"
-                        className="p-1 ml-auto rounded-full hover:bg-neutral-800"
-                    >
-                        <BiDotsHorizontal size={24} />
-                    </button>
-                </h3>
-                <p>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Eius consequuntur alias facere incidunt, labore quos
-                    nesciunt laudantium atque sit nulla perspiciatis sequi
-                    dolore quo! Et, aperiam. Quos repellendus deserunt est!
-                    Rerum nobis aliquam vitae rem, corrupti ipsum itaque ea
-                    illum laboriosam quos eveniet amet, blanditiis eius
-                    inventore molestiae animi harum iusto a quibusdam culpa
-                    repellat, explicabo facere dicta. Ducimus, mollitia? Iusto
-                    doloremque reiciendis maxime distinctio. Accusantium fuga
-                    magnam exercitationem quae cum explicabo asperiores, nostrum
-                    fugiat quod sequi dolore odio ipsam temporibus obcaecati
-                    repudiandae vitae doloremque sint? Qui non eum facilis? Esse
-                    nemo distinctio accusantium hic fuga commodi vero aliquid
-                    fugiat quisquam nisi natus quam dignissimos, veritatis,
-                    corrupti, id error tempora sequi. Esse repellendus corrupti
-                    modi officia unde quidem expedita similique. Nesciunt,
-                    eveniet tenetur possimus blanditiis iste porro odio debitis
-                    aut fuga similique molestias dignissimos numquam magnam
-                    reprehenderit! Nostrum illo reiciendis cum perferendis,
-                    molestiae quo excepturi rem tempora deserunt voluptate
-                    explicabo.
-                </p>
-                <div className="w-full rounded-lg mt-2 h-[30rem] bg-neutral-800">
-                    image
+                    <div className="w-full">
+                        <h3 className="flex items-center w-full">
+                            <div className="flex items-center gap-1">
+                                <span className="font-semibold">
+                                    {post.user.username}
+                                </span>
+                                <span className="text-neutral-500 ">
+                                    {post.user.email}
+                                </span>
+                                <span className="text-neutral-500 ">·</span>
+                                <span className="text-neutral-500 ">1h</span>
+                            </div>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                }}
+                                title="More"
+                                type="button"
+                                className="p-1 ml-auto rounded-full hover:bg-neutral-800"
+                            >
+                                <BiDotsHorizontal size={24} />
+                            </button>
+                        </h3>
+                        <p>{post.content}</p>
+                        <div className="w-full rounded-lg mt-2 h-[30rem] bg-neutral-800">
+                            image
+                        </div>
+                        <div className="flex items-center w-full gap-16 pt-4">
+                            <CommentButton
+                                size={16}
+                                onClick={() => setShowReplyModal(true)}
+                            />
+                            <ReChirpButton size={18} />
+                            <LikeButton
+                                size={18}
+                                onClick={handleLike}
+                                likeCount={likeCount}
+                                likedByUser={isLikedByUser}
+                            />
+                            <ViewsButton size={18} />
+                            <ShareButton size={16} />
+                        </div>
+                    </div>
                 </div>
-                <div className="flex items-center w-full gap-16 pt-4">
-                    <CommentButton size={16} />
-                    <ReChirpButton size={18} />
-                    <LikeButton size={18} />
-                    <ViewsButton size={18} />
-                    <ShareButton size={16} />
-                </div>
-            </div>
-        </article>
+            </Link>
+            {showReplyModal && (
+                <ReplyModal
+                    showModal={showReplyModal}
+                    setShowModal={setShowReplyModal}
+                    userProfile={userProfile}
+                    post={post}
+                />
+            )}
+        </>
     )
 }

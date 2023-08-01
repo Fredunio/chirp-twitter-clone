@@ -59,6 +59,12 @@ module.exports = {
                     800: '#00b3b3',
                     900: '#008080',
                 },
+                input: {
+                    DEFAULT: 'neutral-800',
+                    hover: 'neutral-700',
+                    focus: 'neutral-900',
+                    active: 'neutral-900',
+                },
             },
         },
     },

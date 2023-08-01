@@ -35,7 +35,20 @@ body {
 }
 
 @layer utilities {
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
     .border-dimmed-color {
         @apply border-white border-opacity-20;
+    }
+
+    .input {
+        @apply w-full px-6 py-2 rounded-full bg-neutral-800 hover:bg-neutral-700 focus:bg-neutral-900 active:bg-neutral-900 border-dimmed-color border-1;
     }
 }

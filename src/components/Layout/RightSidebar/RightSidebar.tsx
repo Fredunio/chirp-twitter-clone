@@ -73,7 +73,7 @@ function FooterLink({ children }: { children: React.ReactNode }) {
 
 export default function RightSidebar() {
     return (
-        <aside className="h-screen ">
+        <aside className="overflow-y-auto pr-2 hidden lg:block h-screen sticky top-0 hide-scrollbar">
             <div className="sticky top-0 z-10 pt-2 pb-1 bg-black">
                 <div className="relative">
                     <label
@@ -127,7 +127,7 @@ export default function RightSidebar() {
                     <FollowLink name="Chiwi Team" />
                     <ShowMoreButton />
                 </ContentContainer>
-                <footer className="flex flex-wrap items-center px-4 gap-y-1 gap-x-4">
+                <footer className="flex flex-wrap items-center px-4 gap-y-1 pb-6 gap-x-4">
                     <FooterLink>Terms of Service</FooterLink>
                     <FooterLink>Privacy Policy</FooterLink>
                     <FooterLink>Cookie Policy</FooterLink>
